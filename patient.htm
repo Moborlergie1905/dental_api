@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Patient Form</title>
+  </head>
+  <body>
+	  <div class="container">
+		  <div class="row mt-5">
+			  <div class="col-6">
+				  <div class="card card-primary">
+					  <div class="card-header">
+						  <h4 class="title-heading">Patient Form</h4>
+					  </div>
+					  <div class="card-body">
+						  <form>
+							  <div class="form-group row mb-3">
+								  <label for="" class="col-3">Patient ID:</label>
+								  <div class="col-8">
+									<input type="text" id="pid" class="form-control" />
+								  </div>
+							  </div>
+							  <div class="form-group row mb-3">
+								<label for="" class="col-3">Patient Name:</label>
+								<div class="col-8">
+								  <input type="text" id="pname" class="form-control" />
+								</div>
+							  </div>
+							  <div class="form-group row mb-3">
+								<label for="" class="col-3">Date of Birth:</label>
+								<div class="col-8">
+								  <input type="date" id="dob" class="form-control" />
+								</div>
+							  </div>
+							  <div class="form-group row mb-3">
+								<label for="" class="col-3">Patient Address:</label>
+								<div class="col-8">
+								  <input type="text" id="paddress" class="form-control" />
+								</div>
+							  </div>
+							  <div class="form-group row mb-3">
+								<label for="" class="col-3">Patient Phone:</label>
+								<div class="col-8">
+								  <input type="text" id="pphone" class="form-control" />
+								</div>
+							  </div>
+							  <div class="form-group">
+								  <button type="button" class="btn btn-success" onclick="doSubmit();">Submit</button>
+							  </div>
+						  </form>
+					  </div>
+				  </div>				  
+			  </div>
+			  <div class="col-6">
+				  <table class="table table-stripped">
+					  <thead>
+						  <tr>
+							  <td>Patient Name</td>
+							  <td>Date of Birth</td>
+							  <td>Patient Address</td>
+							  <td>Patient Phone</td>
+						  </tr>
+					  </thead>
+					  <tbody id="tdata"></tbody>
+				  </table>
+			  </div>				
+		  </div>
+	  </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> 
+	<script>
+		fetchPatients();
+		function fetchPatients(){
+			var url = "http://127.0.0.1:8000/patients";
+			fetch(url, 
+			{
+				method: 'GET',
+				mode: 'cors', 
+				credentials: 'same-origin', 
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			.then(response=>response.json())
+			.then(data=>{
+				// console.log(data); 
+				loadData(data);
+			})
+		}
+		function loadData(data){
+			var tbody = document.getElementById('tdata');
+			tbody.innerHTML = '';
+			for(i = 0; i < data.length; i++){					
+				var td_name = document.createElement('td');
+				td_name.innerText = data[i].pname
+				var td_dob = document.createElement('td');
+				td_dob.innerText = data[i].date_of_birth
+				var td_address = document.createElement('td');
+				td_address.innerText = data[i].paddress
+				var td_phone = document.createElement('td');
+				td_phone.innerText = data[i].pphone
+
+				var tr = document.createElement('tr');
+				tr.appendChild(td_name);
+				tr.appendChild(td_dob);
+				tr.appendChild(td_address);
+				tr.appendChild(td_phone);
+
+				tbody.appendChild(tr);
+			}
+		}
+		function doSubmit(){
+			
+			var pat_id = document.getElementById("pid").value;
+			var pat_name = document.getElementById("pname").value;
+			var dob = document.getElementById("dob").value;
+			var pat_address = document.getElementById("paddress").value;
+			var pat_phone = document.getElementById("pphone").value;
+
+			const patient = {
+				patientID: pat_id,
+				pname: pat_name,
+				date_of_birth: dob,
+				paddress: pat_address,
+				pphone: pat_phone
+				};
+				var base_url = "http://127.0.0.1:8000/patients";		
+
+					const response = fetch(base_url, {
+						method: 'POST', 
+						mode: 'cors', 
+						cache: 'no-cache', 
+						credentials: 'same-origin', 
+						headers: {
+						  'Content-Type': 'application/json'						  
+						},
+						redirect: 'follow', 
+						referrerPolicy: 'no-referrer', 
+						body: JSON.stringify(patient) 
+					  }).then((response) => response.json())	
+					  .then((data) => {
+						//console.log('Success:', data);
+						loadData(data);
+						document.getElementById("pid").value = '';
+						document.getElementById("pname").value = '';
+						document.getElementById("dob").value = '';
+						document.getElementById("paddress").value = '';
+						document.getElementById("pphone").value = '';
+					  })
+					  .catch((error) => {
+						console.error('Error:', error);
+						alert(error)
+					  });				
+
+			//alert(pat_name);
+			//return false;
+		}
+	</script>   
+  </body>
+</html>
